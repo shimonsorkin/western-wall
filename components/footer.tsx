@@ -1,0 +1,48 @@
+import { buttonVariants } from "./ui/button";
+import { socialLinks } from "@/lib/constants";
+import Link from "next/link";
+import {
+  SiFacebook,
+  SiTelegram,
+  SiInstagram,
+  SiX,
+  SiLinkedin,
+  SiYoutube,
+  SiTiktok,
+  SiBluesky,
+  SiThreads,
+} from "react-icons/si";
+
+export const Footer = () => {
+  return (
+    <div className="flex gap-4 items-center absolute bottom-[calc(var(--inset)+0.8rem)] md:bottom-[calc(var(--inset)+1.5rem)] left-1/2 -translate-x-1/2">
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.facebook}>
+        <SiFacebook className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.telegram}>
+        <SiTelegram className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.instagram}>
+        <SiInstagram className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.x}>
+        <SiX className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.linkedin}>
+        <SiLinkedin className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.youtube}>
+        <SiYoutube className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.tiktok}>
+        <SiTiktok className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.bluesky}>
+        <SiBluesky className="size-5" />
+      </Link>
+      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.threads}>
+        <SiThreads className="size-5" />
+      </Link>
+    </div>
+  );
+};
