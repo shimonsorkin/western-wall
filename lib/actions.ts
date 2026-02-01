@@ -12,8 +12,8 @@ export const checkEnvs: EnvCheckAction = async () => {
   }
 
   const requiredEnvs = [
-    { name: 'KV_REST_API_URL', label: 'KV REST API URL' },
-    { name: 'KV_REST_API_TOKEN', label: 'KV REST API Token' },
+    { name: 'MAILCHIMP_API_KEY', label: 'Mailchimp API Key' },
+    { name: 'MAILCHIMP_AUDIENCE_ID', label: 'Mailchimp Audience ID' },
   ];
 
   const envs: EnvCheckResult[] = requiredEnvs.map(env => ({

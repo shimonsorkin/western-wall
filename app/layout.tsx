@@ -40,13 +40,9 @@ const instrumentSerif = Instrument_Serif({
 const isV0 = process.env["VERCEL_URL"]?.includes("vusercontent.net") ?? false
 
 export const metadata: Metadata = {
-  title: {
-    template: "%s | Synecdoche®",
-    default: "Synecdoche®",
-  },
+  title: "Newsletters | The Moscow Times",
   description:
-    "We stand at the forefront of a new era, where creativity meets technology to redefine what's possible. Our mission is to empower individuals and businesses alike with groundbreaking solutions that inspire change and drive progress.",
-    generator: 'v0.app'
+    "Subscribe to The Moscow Times newsletters. A hand-picked selection of news, features, analysis and more. Never miss the latest from Russia.",
 }
 
 export default function RootLayout({

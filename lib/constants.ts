@@ -1,7 +1,3 @@
-export const TABLES = {
-  EMAIL_LIST: "email-list",
-};
-
 export const socialLinks = {
   facebook: "https://www.facebook.com/MoscowTimes/",
   telegram: "https://t.me/moscowtimes_en",

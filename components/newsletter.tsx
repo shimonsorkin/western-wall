@@ -144,6 +144,7 @@ export const Newsletter = ({ onNewsletterChange }: { onNewsletterChange?: (type:
                   </div>
                 </motion.div>
                 <FormNewsletter
+                  newsletterTag={newsletters[activeNewsletter].label}
                   input={(props) => (
                     /* @ts-expect-error - Type mismatch */
                     <motion.input
