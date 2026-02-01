@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2026-01-28.clover",
-});
-
 const ALLOWED_CURRENCIES = ["gbp", "usd", "aud", "eur", "nzd", "cad"];
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -18,6 +14,10 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: "2026-01-28.clover",
+    });
+
     const { amount, frequency, currency, firstName, lastName, email } = await req.json();
 
     if (!amount || amount < 1) {
