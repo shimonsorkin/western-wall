@@ -10,7 +10,7 @@ import {
   SiMastercard,
   SiPaypal,
 } from "react-icons/si";
-import { FaCcAmex } from "react-icons/fa6";
+import { FaCcAmex, FaGooglePay } from "react-icons/fa6";
 
 const CURRENCIES = [
   { code: "gbp", symbol: "£", label: "UK £", countries: ["GB"] },
@@ -138,6 +138,10 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
         />
       </motion.div>
 
+      <p className="text-center text-sm sm:text-base font-serif font-light text-foreground/80 max-w-lg px-2">
+        The Moscow Times is Russia&apos;s oldest independent media outlet. We publish in both English and Russian—and your support helps us bring the truth to Russians who need it most. <span className="font-bold">Cancel any time.</span>
+      </p>
+
       <div className="flex flex-col items-center w-full max-w-lg">
         {/* Frequency toggle */}
         <div className="inline-flex rounded-full p-1 backdrop-blur-sm bg-primary/10 border border-border/30 ring-1 ring-border/10">
@@ -148,7 +152,7 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
                 setFrequency(key);
                 setSelectedAmount(PRESET_AMOUNTS[key][1]);
                 setIsCustom(false);
-                setCustomAmount("");
+                setCustomAmount("500");
               }}
               className={cn(
                 "relative px-5 py-1.5 rounded-full text-base font-serif font-light transition-colors duration-200",
@@ -331,16 +335,22 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
               {isSubmitting
                 ? "Redirecting..."
                 : isOneTime
-                  ? `Donate ${currencySymbol}${amount}`
-                  : `Donate ${currencySymbol}${amount} each ${intervalLabel}`}
+                  ? `Support with ${currencySymbol}${amount}`
+                  : `Support with ${currencySymbol}${amount}/${intervalLabel}`}
             </Button>
             <div className="flex items-center gap-1.5 shrink-0">
               <SiVisa className="size-8 text-foreground/50" />
               <SiMastercard className="size-7 text-foreground/50" />
               <FaCcAmex className="size-7 text-foreground/50" />
               <SiPaypal className="size-5 text-foreground/50" />
+              <FaGooglePay className="size-10 text-foreground/50" />
             </div>
           </div>
+
+          <p className="text-center text-xs font-serif font-light text-foreground/60">
+            To cancel or change your donation amount, email{" "}
+            <a href="mailto:support@themoscowtimes.com" className="underline underline-offset-2 hover:text-foreground/80">support@themoscowtimes.com</a> anytime.
+          </p>
 
           {/* Server error */}
           {error === "server" && (

@@ -8,9 +8,6 @@ import {
   SiX,
   SiLinkedin,
   SiYoutube,
-  SiTiktok,
-  SiBluesky,
-  SiThreads,
 } from "react-icons/si";
 
 export const Footer = () => {
@@ -33,15 +30,6 @@ export const Footer = () => {
       </Link>
       <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.youtube}>
         <SiYoutube className="size-5" />
-      </Link>
-      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.tiktok}>
-        <SiTiktok className="size-5" />
-      </Link>
-      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.bluesky}>
-        <SiBluesky className="size-5" />
-      </Link>
-      <Link target="_blank" className={buttonVariants({ size: "icon-xl" })} href={socialLinks.threads}>
-        <SiThreads className="size-5" />
       </Link>
     </div>
   );
