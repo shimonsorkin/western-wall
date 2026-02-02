@@ -37,7 +37,7 @@ export const newsletters = {
 
 export type NewsletterType = keyof typeof newsletters;
 
-export const Newsletter = ({ onNewsletterChange }: { onNewsletterChange?: (type: NewsletterType) => void }) => {
+export const Newsletter = ({ onNewsletterChange, onOpenChange }: { onNewsletterChange?: (type: NewsletterType) => void; onOpenChange?: (isOpen: boolean) => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeNewsletter, setActiveNewsletter] = useState<NewsletterType>("weekly");
 
@@ -48,6 +48,10 @@ export const Newsletter = ({ onNewsletterChange }: { onNewsletterChange?: (type:
       isInitialRender.current = false;
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen, onOpenChange]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -250,8 +254,8 @@ export const Newsletter = ({ onNewsletterChange }: { onNewsletterChange?: (type:
               {isOpen && (
                 <motion.div
                   className={cn(
-                    buttonVariants({ variant: "iconButton", size: "icon" }),
-                    "absolute -top-px -right-px aspect-square"
+                    buttonVariants({ variant: "iconButton", size: "icon-lg" }),
+                    "absolute top-0 right-0 aspect-square"
                   )}
                   initial={{ opacity: 0, scale: 0.8, rotate: -40 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -294,12 +298,12 @@ export const Newsletter = ({ onNewsletterChange }: { onNewsletterChange?: (type:
                   transition: { duration: DURATION, ease: EASE_OUT_OPACITY },
                 },
               }}
-              className="relative flex min-h-0 flex-shrink overflow-hidden text-base max-h-[calc(70dvh-var(--footer-safe-area))] flex-col gap-8 text-center backdrop-blur-xl text-balance border-2 border-border/50 bg-primary/20 max-w-3xl text-foreground rounded-3xl ring-1 ring-offset-primary/10 ring-border/10 ring-offset-2 shadow-button"
+              className="relative flex min-h-0 flex-shrink overflow-hidden text-base max-h-[calc(70dvh-var(--footer-safe-area))] flex-col gap-8 text-left backdrop-blur-xl text-balance border-2 border-border/50 bg-primary/20 max-w-3xl text-foreground rounded-3xl ring-1 ring-offset-primary/10 ring-border/10 ring-offset-2 shadow-button"
             >
               <article className="relative overflow-y-auto p-6 h-full [&_p]:my-4 font-serif font-light">
                 <p>Dear friends! On July 10, 2024, the Russian Prosecutor General&apos;s Office declared The Moscow Times, the oldest independent Russian media outlet, an &quot;undesirable&quot; organization. The official reason?</p>
-                <p className="italic">&laquo;For discrediting the decisions of the Russian leadership in both foreign and domestic policy&raquo;</p>
-                <p className="italic">(&laquo;За дискредитацию решений руководства Российской Федерации как во внешней, так и во внутренней политике&raquo;).</p>
+                <p className="italic font-bold">&laquo;For discrediting the decisions of the Russian leadership in both foreign and domestic policy&raquo;</p>
+                <p className="italic font-bold">(&laquo;За дискредитацию решений руководства Российской Федерации как во внешней, так и во внутренней политике&raquo;).</p>
                 <p>While this might make for a good toast, there was nothing fun about this designation for our team and our readers in Russia. It only brought new risks and challenges.</p>
                 <p>In hitting us with this label, the Russian authorities hoped we would no longer be able to report on Russia in an engaging, objective way — and that our readers would stop paying attention.</p>
                 <p>But in reality, the opposite happened.</p>
