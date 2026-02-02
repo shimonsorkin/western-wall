@@ -36,16 +36,12 @@ const VideoWithPlaceholder = ({
     const video = videoRef.current;
 
     if (video) {
-      const handleLoadedData = () => {
+      const handleReady = () => {
         setVideoLoaded(true);
       };
 
-      const handleCanPlay = () => {
-        setVideoLoaded(true);
-      };
-
-      video.addEventListener("loadeddata", handleLoadedData);
-      video.addEventListener("canplay", handleCanPlay);
+      video.addEventListener("loadeddata", handleReady);
+      video.addEventListener("canplay", handleReady);
       video.load();
 
       if (video.readyState >= 2) {
@@ -53,8 +49,8 @@ const VideoWithPlaceholder = ({
       }
 
       return () => {
-        video.removeEventListener("loadeddata", handleLoadedData);
-        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("loadeddata", handleReady);
+        video.removeEventListener("canplay", handleReady);
       };
     }
   }, [src]);

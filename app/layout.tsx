@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Instrument_Serif, Merriweather, Roboto } from "next/
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { V0Provider } from "@/lib/context"
+import { LayoutShell } from "@/components/layout-shell"
 import dynamic from "next/dynamic"
 
 const V0Setup = dynamic(() => import("@/components/v0-setup"))
@@ -54,7 +55,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn(geistSans.variable, geistMono.variable, instrumentSerif.variable, merriweather.variable, roboto.variable)}>
         <V0Provider isV0={isV0}>
-          {children}
+          <LayoutShell>
+            {children}
+          </LayoutShell>
           {isV0 && <V0Setup />}
         </V0Provider>
       </body>
