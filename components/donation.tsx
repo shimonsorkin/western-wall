@@ -132,7 +132,7 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
 
   return (
     <div className="overflow-y-auto relative w-full h-full">
-    <div className="flex flex-col gap-6 justify-center items-center min-h-full pt-10 short:lg:pt-10 pb-footer-safe-area 2xl:pt-footer-safe-area px-sides">
+    <div className="flex flex-col gap-6 justify-center items-center min-h-full py-10 px-sides">
       <motion.div
         layout="position"
         transition={{ duration: 0.3, ease: "easeOut" }}
