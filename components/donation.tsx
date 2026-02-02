@@ -11,6 +11,7 @@ import {
   SiPaypal,
 } from "react-icons/si";
 import { FaCcAmex, FaGooglePay } from "react-icons/fa6";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
 
 const CURRENCIES = [
   { code: "gbp", symbol: "£", label: "UK £", countries: ["GB"] },
@@ -62,9 +63,13 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showManage, setShowManage] = useState(false);
+  const [manageEmail, setManageEmail] = useState("");
+  const [manageError, setManageError] = useState("");
+  const [manageLoading, setManageLoading] = useState(false);
 
   const currency = CURRENCIES[currencyIdx];
   const currencySymbol = currency.symbol;
@@ -312,7 +317,7 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
             <span>
               I agree to the{" "}
               <a
-                href="https://www.themoscowtimes.com/page/privacy"
+                href="https://www.themoscowtimes.com/page/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline underline-offset-2 hover:text-foreground"
@@ -347,10 +352,106 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
             </div>
           </div>
 
-          <p className="text-center text-xs font-serif font-light text-foreground/60">
-            To cancel or change your donation amount, email{" "}
-            <a href="mailto:support@themoscowtimes.com" className="underline underline-offset-2 hover:text-foreground/80">support@themoscowtimes.com</a> anytime.
-          </p>
+          {/* Manage subscription */}
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setShowManage(!showManage);
+                setManageError("");
+              }}
+              className="text-xs font-serif font-light text-foreground/60 underline underline-offset-2 hover:text-foreground/80 transition-colors"
+            >
+              Cancel or change your donation.
+            </button>
+            <div
+              className={cn(
+                "transition-all duration-200 ease-out",
+                showManage
+                  ? "max-h-40 opacity-100 overflow-visible mt-3"
+                  : "max-h-0 opacity-0 overflow-hidden"
+              )}
+            >
+              <div className="relative">
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  value={manageEmail}
+                  onChange={(e) => {
+                    setManageEmail(e.target.value);
+                    setManageError("");
+                  }}
+                  className={cn(
+                    inputVariants(),
+                    "font-serif text-sm",
+                    manageError && "border-red-500/80"
+                  )}
+                />
+                <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                <Button
+                  type="button"
+                  variant="iconButton"
+                  disabled={manageLoading}
+                  className="shrink-0 size-11"
+                  onClick={async () => {
+                    if (!manageEmail.trim() || !manageEmail.includes("@")) {
+                      setManageError("invalid");
+                      return;
+                    }
+                    setManageLoading(true);
+                    setManageError("");
+                    try {
+                      const res = await fetch("/api/create-portal", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: manageEmail.trim() }),
+                      });
+                      const data = await res.json();
+                      if (data.url) {
+                        window.location.href = data.url;
+                      } else if (data.error === "not_found") {
+                        setManageError("not_found");
+                        setManageLoading(false);
+                      } else {
+                        setManageError("server");
+                        setManageLoading(false);
+                      }
+                    } catch {
+                      setManageError("server");
+                      setManageLoading(false);
+                    }
+                  }}
+                >
+                  {manageLoading ? (
+                    <span className="text-sm">...</span>
+                  ) : (
+                    <ArrowRightIcon className="w-4 h-4" />
+                  )}
+                </Button>
+                </div>
+              </div>
+              {manageError === "not_found" && (
+                <p className="text-red-400 text-xs font-serif mt-1.5">
+                  No subscription found for this email.
+                </p>
+              )}
+              {manageError === "server" && (
+                <p className="text-red-400 text-xs font-serif mt-1.5">
+                  Something went wrong. Please try again.
+                </p>
+              )}
+              <p className="text-xs font-serif font-light text-foreground/60 mt-3">
+                Or email{" "}
+                <a
+                  href="mailto:support@themoscowtimes.com"
+                  className="underline underline-offset-2 hover:text-foreground/80 transition-colors"
+                >
+                  support@themoscowtimes.com
+                </a>
+                {" "}to cancel or change your donation anytime.
+              </p>
+            </div>
+          </div>
 
           {/* Server error */}
           {error === "server" && (

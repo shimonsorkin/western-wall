@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { Background } from "@/components/background";
 import { Donation } from "@/components/donation";
-import { Footer } from "@/components/footer";
 
 export default async function DonatePage() {
   const headersList = await headers();
@@ -12,7 +11,6 @@ export default async function DonatePage() {
       <div className="relative h-full w-full">
         <Background src="/Moscow_VHS_Loop_PingPong.mp4" placeholder="/placeholder-weekly.jpg" />
         <Donation detectedCountry={detectedCountry} />
-        <Footer />
       </div>
     </main>
   );
