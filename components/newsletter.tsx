@@ -31,7 +31,7 @@ export const newsletters = {
     label: "Regions Calling",
     description:
       "A deep dive into Russia's regions — stories, insights and developments beyond Moscow and St. Petersburg, delivered straight to your inbox.",
-    video: "/Regions_PingPong.mp4",
+    video: "/Moscow_VHS_Loop_PingPong.mp4",
   },
 } as const;
 

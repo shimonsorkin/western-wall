@@ -145,7 +145,7 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
       </motion.div>
 
       <p className="text-center text-sm sm:text-base font-serif font-light text-foreground/80 max-w-lg px-2">
-        The Moscow Times is Russia&apos;s oldest independent media outlet. We publish in both English and Russian—and your support helps us bring the truth to Russians who need it most. <span className="font-bold">Cancel any time.</span>
+        The Moscow Times is the oldest Russian independent media outlet, publishing in both English and Russian. After we were forced into exile in 2022, the Kremlin declared us &ldquo;undesirable&rdquo; in 2024&nbsp;&mdash; making it a crime to work with us inside Russia. Your support helps us reach those who need the truth the most.
       </p>
 
       <div className="flex flex-col items-center w-full max-w-lg">
