@@ -340,9 +340,14 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
             >
               {isSubmitting
                 ? "Redirecting..."
-                : isOneTime
-                  ? `Support with ${currencySymbol}${amount}`
-                  : `Support with ${currencySymbol}${amount}/${intervalLabel}`}
+                : <>
+                    <span className="sm:hidden">Support</span>
+                    <span className="hidden sm:inline">
+                      {isOneTime
+                        ? `Support with ${currencySymbol}${amount}`
+                        : `Support with ${currencySymbol}${amount}/${intervalLabel}`}
+                    </span>
+                  </>}
             </Button>
             <div className="flex items-center gap-1.5 shrink-0">
               <SiVisa className="size-8 text-foreground/50" />

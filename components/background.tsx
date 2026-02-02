@@ -104,10 +104,10 @@ export const Background = ({
   const isVideoFile = isVideo(extension);
 
   const classNames =
-    "absolute bg-background left-0 top-0 w-full h-full object-cover rounded-[42px] md:rounded-[72px]";
+    "absolute bg-background left-0 top-0 w-full h-full object-cover rounded-none sm:rounded-[42px] md:rounded-[72px]";
 
   const overlay = (
-    <div className="absolute left-0 top-0 w-full h-full bg-black/65 rounded-[42px] md:rounded-[72px]" />
+    <div className="absolute left-0 top-0 w-full h-full bg-black/65 rounded-none sm:rounded-[42px] md:rounded-[72px]" />
   );
 
   if (isVideoFile) {

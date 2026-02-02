@@ -38,9 +38,15 @@
     --radius: 0.5rem;
 
     /* Spacing variables */
-    --inset: min(2vw, 1.5rem);
+    --inset: 0px;
     --sides: 1rem;
     --footer-safe-area: calc(var(--inset) * 2 + 1.5rem + theme('spacing.9'));
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --inset: min(2vw, 1.5rem);
+    }
   }
 }
 
