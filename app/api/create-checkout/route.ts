@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createHash } from "crypto";
 
 const ALLOWED_CURRENCIES = ["gbp", "usd", "aud", "eur", "nzd", "cad"];
 
@@ -135,6 +136,33 @@ export async function POST(req: NextRequest) {
         success_url: `${origin}/donate?success=true`,
         cancel_url: `${origin}/donate`,
       });
+    }
+
+    // Add donor to Mailchimp newsletter with "Donor" tag (fire-and-forget)
+    const mcKey = process.env.MAILCHIMP_API_KEY || "";
+    const mcAudience = process.env.MAILCHIMP_AUDIENCE_ID || "";
+    const mcServer = mcKey.split("-").pop() || "";
+    if (mcKey && mcAudience) {
+      const hash = createHash("md5").update(email.trim().toLowerCase()).digest("hex");
+      const mcBase = `https://${mcServer}.api.mailchimp.com/3.0`;
+      const mcHeaders = { Authorization: `apikey ${mcKey}`, "Content-Type": "application/json" };
+      fetch(`${mcBase}/lists/${mcAudience}/members/${hash}`, {
+        method: "PUT",
+        headers: mcHeaders,
+        body: JSON.stringify({
+          email_address: email.trim(),
+          status_if_new: "subscribed",
+          merge_fields: { FNAME: firstName?.trim() || "", LNAME: lastName?.trim() || "" },
+        }),
+      })
+        .then(() =>
+          fetch(`${mcBase}/lists/${mcAudience}/members/${hash}/tags`, {
+            method: "POST",
+            headers: mcHeaders,
+            body: JSON.stringify({ tags: [{ name: "Donor", status: "active" }] }),
+          })
+        )
+        .catch(() => {});
     }
 
     return NextResponse.json({ url: session.url });

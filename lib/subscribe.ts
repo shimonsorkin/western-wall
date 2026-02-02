@@ -24,7 +24,8 @@ function authHeaders(): HeadersInit {
 
 export const subscribe = async (
   email: string,
-  tag: string
+  tag: string,
+  mergeFields?: Record<string, string>
 ): Promise<ActionResult<string>> => {
   if (IS_DEMO) {
     return error("Missing required setup");
@@ -48,6 +49,7 @@ export const subscribe = async (
         body: JSON.stringify({
           email_address: parsed.data.email,
           status_if_new: "subscribed",
+          ...(mergeFields && { merge_fields: mergeFields }),
         }),
       }
     );

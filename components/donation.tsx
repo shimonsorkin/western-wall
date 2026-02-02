@@ -131,7 +131,8 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
   }
 
   return (
-    <div className="flex overflow-hidden relative flex-col gap-6 justify-center items-center pt-10 w-full h-full short:lg:pt-10 pb-footer-safe-area 2xl:pt-footer-safe-area px-sides">
+    <div className="overflow-y-auto relative w-full h-full">
+    <div className="flex flex-col gap-6 justify-center items-center min-h-full pt-10 short:lg:pt-10 pb-footer-safe-area 2xl:pt-footer-safe-area px-sides">
       <motion.div
         layout="position"
         transition={{ duration: 0.3, ease: "easeOut" }}
@@ -461,6 +462,7 @@ export const Donation = ({ detectedCountry }: { detectedCountry: string }) => {
           )}
         </form>
       </div>
+    </div>
     </div>
   );
 };
