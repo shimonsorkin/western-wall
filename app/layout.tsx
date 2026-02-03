@@ -41,9 +41,9 @@ const instrumentSerif = Instrument_Serif({
 const isV0 = process.env["VERCEL_URL"]?.includes("vusercontent.net") ?? false
 
 export const metadata: Metadata = {
-  title: "Newsletters | The Moscow Times",
+  title: "Western Wall Notes — Place Your Prayer at the Kotel",
   description:
-    "Subscribe to The Moscow Times newsletters. A hand-picked selection of news, features, analysis and more. Never miss the latest from Russia.",
+    "Submit your personal prayer or note and we'll place it in the Western Wall (Kotel) in Jerusalem on your behalf.",
 }
 
 export default function RootLayout({

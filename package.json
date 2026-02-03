@@ -1,6 +1,7 @@
 {
-  "name": "my-v0-project",
+  "name": "western-wall-notes",
   "version": "0.1.0",
+  "description": "Submit your personal prayer or note and we'll place it in the Western Wall (Kotel) in Jerusalem on your behalf.",
   "private": true,
   "scripts": {
     "build": "next build",
