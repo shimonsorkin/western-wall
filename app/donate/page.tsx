@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { Donation } from "@/components/donation";
 
 export const metadata: Metadata = {
-  title: "Support The Moscow Times",
+  title: "Donate — Western Wall Notes",
 };
 
 export default async function DonatePage() {

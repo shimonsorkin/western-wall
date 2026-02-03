@@ -1,176 +1,132 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { createHash } from "crypto";
+import {
+  createOrder,
+  getOrCreateProduct,
+  getOrCreatePlan,
+  createSubscription,
+} from "@/lib/paypal";
 
 const ALLOWED_CURRENCIES = ["gbp", "usd", "aud", "eur", "nzd", "cad"];
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  gbp: "£",
-  usd: "$",
-  aud: "AU$",
-  eur: "€",
-  nzd: "NZ$",
-  cad: "CA$",
-};
-
-async function getOrCreateProduct(
-  stripe: Stripe,
-  frequency: string
-): Promise<Stripe.Product> {
-  const name =
-    frequency === "annual"
-      ? "The Moscow Times — Annual Donation"
-      : "The Moscow Times — Monthly Donation";
-
-  const products = await stripe.products.list({ active: true, limit: 100 });
-  const existing = products.data.find((p) => p.name === name);
-  if (existing) return existing;
-
-  return stripe.products.create({ name });
-}
-
-async function getOrCreatePrice(
-  stripe: Stripe,
-  productId: string,
-  amount: number,
-  currency: string,
-  interval: "month" | "year"
-): Promise<Stripe.Price> {
-  const prices = await stripe.prices.list({
-    product: productId,
-    currency,
-    active: true,
-    limit: 100,
-  });
-
-  const existing = prices.data.find(
-    (p) => p.unit_amount === amount * 100 && p.recurring?.interval === interval
-  );
-  if (existing) return existing;
-
-  return stripe.prices.create({
-    product: productId,
-    unit_amount: amount * 100,
-    currency,
-    recurring: { interval },
-  });
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2026-01-28.clover",
-    });
-
-    const { amount, frequency, currency, firstName, lastName, email } =
+    const { amount, frequency, currency, name, email, prayer } =
       await req.json();
 
-    if (!amount || amount < 1) {
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-    }
-
+    const origin = req.headers.get("origin") || "http://localhost:3000";
     const safeCurrency = ALLOWED_CURRENCIES.includes(currency)
       ? currency
       : "usd";
-    const symbol = CURRENCY_SYMBOLS[safeCurrency] || "$";
 
+    const numericAmount = Number(amount) || 0;
     const isOneTime = frequency === "one-time";
-    const interval: "month" | "year" =
-      frequency === "annual" ? "year" : "month";
-    const origin = req.headers.get("origin") || "http://localhost:3000";
 
-    let session: Stripe.Checkout.Session;
+    // Build metadata to store in PayPal fields
+    const customId = JSON.stringify({ name, email }).slice(0, 127);
+    const description = (prayer || "Prayer at the Western Wall").slice(0, 127);
+
+    // Prayer-only submission (no donation)
+    if (numericAmount <= 0) {
+      // Fire-and-forget Mailchimp, then redirect to success
+      tagMailchimp(email, name);
+      return NextResponse.json({ url: `${origin}/donate?success=true` });
+    }
+
+    let approvalUrl: string | undefined;
 
     if (isOneTime) {
-      session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        payment_method_types: ["card"],
-        customer_email: email,
-        line_items: [
-          {
-            price_data: {
-              currency: safeCurrency,
-              product_data: {
-                name: "The Moscow Times — One-time Donation",
-                description: `${symbol}${amount} one-time donation to The Moscow Times`,
-              },
-              unit_amount: amount * 100,
-            },
-            quantity: 1,
-          },
-        ],
-        metadata: {
-          firstName,
-          lastName,
-          donorEmail: email,
-          frequency,
-          amount: String(amount),
-          currency: safeCurrency,
-        },
-        success_url: `${origin}/donate?success=true`,
-        cancel_url: `${origin}/donate`,
+      const order = await createOrder({
+        amount: numericAmount,
+        currency: safeCurrency,
+        description,
+        customId,
+        returnUrl: `${origin}/api/paypal/capture`,
+        cancelUrl: `${origin}/donate`,
       });
+
+      approvalUrl = order.links?.find(
+        (l) => l.rel === "payer-action"
+      )?.href;
     } else {
-      const product = await getOrCreateProduct(stripe, frequency);
-      const price = await getOrCreatePrice(
-        stripe,
-        product.id,
-        amount,
+      // Recurring: weekly / monthly / annual
+      const productId = await getOrCreateProduct();
+      const planId = await getOrCreatePlan(
+        productId,
+        frequency,
         safeCurrency,
-        interval
+        numericAmount
       );
 
-      session = await stripe.checkout.sessions.create({
-        mode: "subscription",
-        payment_method_types: ["card"],
-        customer_email: email,
-        line_items: [{ price: price.id, quantity: 1 }],
-        metadata: {
-          firstName,
-          lastName,
-          donorEmail: email,
-          frequency,
-          amount: String(amount),
-          currency: safeCurrency,
-        },
-        success_url: `${origin}/donate?success=true`,
-        cancel_url: `${origin}/donate`,
+      const subscription = await createSubscription({
+        planId,
+        email: email?.trim() || "",
+        name: name?.trim() || "",
+        customId,
+        returnUrl: `${origin}/donate?success=true`,
+        cancelUrl: `${origin}/donate`,
       });
+
+      approvalUrl = subscription.links?.find(
+        (l) => l.rel === "approve"
+      )?.href;
     }
 
-    // Add donor to Mailchimp newsletter with "Donor" tag (fire-and-forget)
-    const mcKey = process.env.MAILCHIMP_API_KEY || "";
-    const mcAudience = process.env.MAILCHIMP_AUDIENCE_ID || "";
-    const mcServer = mcKey.split("-").pop() || "";
-    if (mcKey && mcAudience) {
-      const hash = createHash("md5").update(email.trim().toLowerCase()).digest("hex");
-      const mcBase = `https://${mcServer}.api.mailchimp.com/3.0`;
-      const mcHeaders = { Authorization: `apikey ${mcKey}`, "Content-Type": "application/json" };
-      fetch(`${mcBase}/lists/${mcAudience}/members/${hash}`, {
-        method: "PUT",
-        headers: mcHeaders,
-        body: JSON.stringify({
-          email_address: email.trim(),
-          status_if_new: "subscribed",
-          merge_fields: { FNAME: firstName?.trim() || "", LNAME: lastName?.trim() || "" },
-        }),
-      })
-        .then(() =>
-          fetch(`${mcBase}/lists/${mcAudience}/members/${hash}/tags`, {
-            method: "POST",
-            headers: mcHeaders,
-            body: JSON.stringify({ tags: [{ name: "Donor", status: "active" }] }),
-          })
-        )
-        .catch(() => {});
+    if (!approvalUrl) {
+      return NextResponse.json(
+        { error: "No approval URL returned from PayPal" },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ url: session.url });
+    // Add donor to Mailchimp (fire-and-forget)
+    tagMailchimp(email, name);
+
+    return NextResponse.json({ url: approvalUrl });
   } catch (err) {
-    console.error("Stripe checkout error:", err);
+    console.error("PayPal checkout error:", err);
     return NextResponse.json(
       { error: "Failed to create checkout session" },
       { status: 500 }
     );
   }
+}
+
+// ── Mailchimp (fire-and-forget) ────────────────────────────────────────
+
+function tagMailchimp(email?: string, name?: string) {
+  const mcKey = process.env.MAILCHIMP_API_KEY || "";
+  const mcAudience = process.env.MAILCHIMP_AUDIENCE_ID || "";
+  const mcServer = mcKey.split("-").pop() || "";
+
+  if (!mcKey || !mcAudience || !email) return;
+
+  const hash = createHash("md5")
+    .update(email.trim().toLowerCase())
+    .digest("hex");
+  const mcBase = `https://${mcServer}.api.mailchimp.com/3.0`;
+  const mcHeaders = {
+    Authorization: `apikey ${mcKey}`,
+    "Content-Type": "application/json",
+  };
+
+  fetch(`${mcBase}/lists/${mcAudience}/members/${hash}`, {
+    method: "PUT",
+    headers: mcHeaders,
+    body: JSON.stringify({
+      email_address: email.trim(),
+      status_if_new: "subscribed",
+      merge_fields: { FNAME: name?.trim() || "" },
+    }),
+  })
+    .then(() =>
+      fetch(`${mcBase}/lists/${mcAudience}/members/${hash}/tags`, {
+        method: "POST",
+        headers: mcHeaders,
+        body: JSON.stringify({
+          tags: [{ name: "Donor", status: "active" }],
+        }),
+      })
+    )
+    .catch(() => {});
 }
